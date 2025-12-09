@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "cd client-side && npm install && npm run build",
-  "outputDirectory": "client-side/build",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "build",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
