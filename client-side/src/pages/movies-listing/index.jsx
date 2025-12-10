@@ -31,20 +31,23 @@ const MoviesListing = () => {
         const userStr = localStorage.getItem("user");
         const token = localStorage.getItem("authToken");
 
+        // User is optional - if exists, set it
         if (userStr && token) {
           const userData = JSON.parse(userStr);
           setUser(userData);
         } else {
-          navigate("/login");
+          // No user is OK - just set to null
+          setUser(null);
         }
       } catch (error) {
         console.error("Error parsing user data:", error);
-        navigate("/login");
+        // Even on error, just set user to null, don't redirect
+        setUser(null);
       }
     };
 
     getUserFromStorage();
-  }, [navigate]);
+  }, []);
 
   // Fetch movies from API
   const fetchMovies = async () => {
