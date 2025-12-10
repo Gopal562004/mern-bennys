@@ -17,7 +17,21 @@ import EditMovie from "./pages/edit-movie";
 import AddMovie from "./pages/add-movie";
 
 const Routes = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const getUser = () => {
+    try {
+      const userString = localStorage.getItem("user");
+      // Check if it's null or undefined
+      if (!userString || userString === "null" || userString === "undefined") {
+        return null;
+      }
+      return JSON.parse(userString);
+    } catch (error) {
+      console.error("Error parsing user from localStorage:", error);
+      return null;
+    }
+  };
+
+  const user = getUser();
   const isAdminLoggedIn = user?.role === "admin";
 
   return (
