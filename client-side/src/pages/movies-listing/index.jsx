@@ -49,10 +49,8 @@ const MoviesListing = () => {
     getUserFromStorage();
   }, []);
 
-  // Fetch movies from API
+  // ✅ FIXED: Fetch movies from API (removed user check)
   const fetchMovies = async () => {
-    if (!user) return;
-
     setLoading(true);
     setError(null);
 
@@ -82,7 +80,8 @@ const MoviesListing = () => {
       if (error.response) {
         // Server responded with error status
         if (error.response.status === 401) {
-          navigate("/login");
+          // ✅ FIXED: Show error but don't redirect for public access
+          setError("Please log in for full access");
           return;
         }
         setError(
@@ -101,16 +100,14 @@ const MoviesListing = () => {
     }
   };
 
-  // Fetch movies when dependencies change
+  // ✅ FIXED: Fetch movies when dependencies change (removed user dependency)
   useEffect(() => {
-    if (user) {
-      const timer = setTimeout(() => {
-        fetchMovies();
-      }, 300); // Debounce search
+    const timer = setTimeout(() => {
+      fetchMovies();
+    }, 300); // Debounce search
 
-      return () => clearTimeout(timer);
-    }
-  }, [currentPage, searchQuery, sortBy, sortOrder, user]);
+    return () => clearTimeout(timer);
+  }, [currentPage, searchQuery, sortBy, sortOrder]); // Removed user from dependencies
 
   // Reset to page 1 when search query changes
   useEffect(() => {
@@ -135,7 +132,11 @@ const MoviesListing = () => {
   };
 
   const handleLogout = () => {
-    navigate("/login");
+    // Clear localStorage on logout
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+    // Refresh page to show non-logged in state
+    window.location.reload();
   };
 
   const breadcrumbItems = [
