@@ -43,7 +43,7 @@ const MovieDetails = () => {
     getUserFromStorage();
   }, []);  
 
-  // Fetch movie details from API
+  // ✅ FIXED: Fetch movie details from API (removed user check)
   useEffect(() => {
     const fetchMovieDetails = async () => {
       if (!slug) {
@@ -71,7 +71,8 @@ const MovieDetails = () => {
           setError("Movie not found");
           navigate("/movies-listing");
         } else if (error.response?.status === 401) {
-          navigate("/login");
+          // ✅ FIXED: Show error message instead of redirecting
+          setError("Please log in to access full features");
         } else {
           setError(
             error.response?.data?.message || "Failed to load movie details"
@@ -82,13 +83,16 @@ const MovieDetails = () => {
       }
     };
 
-    if (user) {
-      fetchMovieDetails();
-    }
-  }, [slug, user, navigate]);
+    // ✅ REMOVED: if (user) check - fetch movies for everyone!
+    fetchMovieDetails();
+  }, [slug]); // ✅ Removed user and navigate dependencies
 
   const handleLogout = () => {
-    navigate("/login");
+    // Clear localStorage
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+    // Refresh page
+    window.location.reload();
   };
 
   // Format movie data for components
