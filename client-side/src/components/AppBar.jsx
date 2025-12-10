@@ -50,17 +50,17 @@ const AppBar = ({ onLogout }) => {
 
   const isActive = (path) => location?.pathname === path;
 
-  // Navigation items based on roles
+  // ✅ FIXED: Navigation items - show Movies to everyone
   const navigationItems = [
-    // User role navigation (visible to both users and admins)
+    // Movies should be visible to ALL users (logged in or not)
     {
       label: "Movies",
       path: "/movies-listing",
       icon: "Film",
-      roles: ["user", "admin"],
+      roles: ["user", "admin", "guest"], // Added "guest" role
       description: "Browse all movies",
     },
-    // Admin role navigation (only for admins)
+    // Admin Dashboard only for admins
     {
       label: "Dashboard",
       path: "/admin-dashboard",
@@ -137,13 +137,13 @@ const AppBar = ({ onLogout }) => {
     return !!(token && userStr);
   };
 
-  // If not authenticated and not on login/register pages, don't show AppBar
-  const isAuthPage = ["/login", "/register", "/forgot-password"].includes(
-    location.pathname
-  );
-  if (!isAuthenticated() && !isAuthPage) {
-    return null;
-  }
+  // ✅ REMOVED: The problematic code that hides AppBar for non-authenticated users
+  // const isAuthPage = ["/login", "/register", "/forgot-password"].includes(
+  //   location.pathname
+  // );
+  // if (!isAuthenticated() && !isAuthPage) {
+  //   return null;
+  // }
 
   return (
     <>
@@ -156,7 +156,7 @@ const AppBar = ({ onLogout }) => {
                 ? userRole === "admin"
                   ? "/admin-dashboard"
                   : "/movies-listing"
-                : "/"
+                : "/movies-listing" // ✅ FIXED: Non-logged in users go to movies listing
             }
             className="app-bar-logo"
           >
@@ -168,28 +168,37 @@ const AppBar = ({ onLogout }) => {
                   ? userRole === "admin"
                     ? "Admin Panel"
                     : "Movies"
-                  : "Welcome"}
+                  : "Movie Collection"} {/* ✅ Updated text for guests */}
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          {isAuthenticated() && (
-            <nav className="app-bar-nav">
-              {visibleNavItems?.map((item) => (
-                <Link
-                  key={item?.path}
-                  to={item?.path}
-                  className={`app-bar-nav-item ${
-                    isActive(item?.path) ? "active" : ""
-                  }`}
-                  title={item?.description}
-                >
-                  {item?.label}
-                </Link>
-              ))}
-            </nav>
-          )}
+          {/* Desktop Navigation - Show to everyone */}
+          <nav className="app-bar-nav">
+            {/* Always show Movies link to everyone */}
+            <Link
+              to="/movies-listing"
+              className={`app-bar-nav-item ${
+                isActive("/movies-listing") ? "active" : ""
+              }`}
+              title="Browse all movies"
+            >
+              Movies
+            </Link>
+            
+            {/* Show Dashboard only if user is admin */}
+            {isAuthenticated() && userRole === "admin" && (
+              <Link
+                to="/admin-dashboard"
+                className={`app-bar-nav-item ${
+                  isActive("/admin-dashboard") ? "active" : ""
+                }`}
+                title="Admin dashboard"
+              >
+                Dashboard
+              </Link>
+            )}
+          </nav>
 
           {/* User Actions */}
           <div className="app-bar-actions">
@@ -231,23 +240,22 @@ const AppBar = ({ onLogout }) => {
                 </button>
               </>
             ) : (
-              // Show auth buttons if not authenticated
-              !isAuthPage && (
-                <div className="flex items-center gap-2">
-                  <Link
-                    to="/login"
-                    className="px-4 py-2 rounded-md text-sm font-medium text-foreground hover:bg-muted transition-smooth"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-smooth"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              )
+              // ✅ FIXED: Show login button for non-authenticated users
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/login"
+                  className="px-4 py-2 rounded-md text-sm font-medium text-foreground hover:bg-muted transition-smooth"
+                >
+                  Sign In
+                </Link>
+                {/* Optional: Remove or keep Sign Up based on your needs */}
+                {/* <Link
+                  to="/register"
+                  className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-smooth"
+                >
+                  Sign Up
+                </Link> */}
+              </div>
             )}
           </div>
         </div>
@@ -260,7 +268,7 @@ const AppBar = ({ onLogout }) => {
         aria-hidden={!mobileMenuOpen}
       />
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer - Only show if authenticated */}
       {isAuthenticated() && (
         <aside className={`mobile-drawer ${mobileMenuOpen ? "" : "closed"}`}>
           <div className="mobile-drawer-header">
