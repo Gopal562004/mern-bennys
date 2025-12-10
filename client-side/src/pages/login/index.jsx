@@ -240,7 +240,7 @@ const Login = () => {
         {/* Footer */}
         <div className="mt-6 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date()?.getFullYear()} CineHub Admin. All rights reserved.
+            © {new Date()?.getFullYear()} Movies. All rights reserved.
           </p>
         </div>
       </div>
