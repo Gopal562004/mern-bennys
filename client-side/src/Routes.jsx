@@ -17,16 +17,19 @@ import EditMovie from "./pages/edit-movie";
 import AddMovie from "./pages/add-movie";
 
 const Routes = () => {
+  // ✅ FIXED: Handle null/undefined safely
   const getUser = () => {
     try {
-      const userString = localStorage.getItem("user");
-      // Check if it's null or undefined
-      if (!userString || userString === "null" || userString === "undefined") {
+      const userData = localStorage.getItem("user");
+      // Check if data exists and is not "null" or "undefined" string
+      if (!userData || userData === "null" || userData === "undefined") {
         return null;
       }
-      return JSON.parse(userString);
+      return JSON.parse(userData);
     } catch (error) {
-      console.error("Error parsing user from localStorage:", error);
+      console.error("Error parsing user data:", error);
+      // Clear invalid data from localStorage
+      localStorage.removeItem("user");
       return null;
     }
   };
@@ -39,15 +42,15 @@ const Routes = () => {
       <ErrorBoundary>
         <ScrollToTop />
         <RouterRoutes>
-          {/* redirect / */}
+          {/* This will now work for new users */}
           <Route path="/" element={<Navigate to="/movies-listing" />} />
 
-          {/* public */}
+          {/* Public routes - accessible without login */}
           <Route path="/login" element={<Login />} />
           <Route path="/movies-listing" element={<MoviesListing />} />
           <Route path="/movie-details/:slug" element={<MovieDetails />} />
 
-          {/* admin protected */}
+          {/* Admin protected routes - requires login */}
           <Route
             path="/admin-dashboard"
             element={
@@ -65,6 +68,7 @@ const Routes = () => {
             element={isAdminLoggedIn ? <AddMovie /> : <Navigate to="/login" />}
           />
 
+          {/* 404 page */}
           <Route path="*" element={<NotFound />} />
         </RouterRoutes>
       </ErrorBoundary>
