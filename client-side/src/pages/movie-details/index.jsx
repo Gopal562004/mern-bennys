@@ -25,20 +25,23 @@ const MovieDetails = () => {
         const userStr = localStorage.getItem("user");
         const token = localStorage.getItem("authToken");
 
+        // ✅ FIX: User is optional, not required
         if (userStr && token) {
           const userData = JSON.parse(userStr);
           setUser(userData);
         } else {
-          navigate("/login");
+          // No user is OK - set user to null
+          setUser(null);
         }
       } catch (error) {
         console.error("Error parsing user data:", error);
-        navigate("/login");
+        // Even if error, don't redirect - just set user to null
+        setUser(null);
       }
     };
 
     getUserFromStorage();
-  }, [navigate]);
+  }, []);  
 
   // Fetch movie details from API
   useEffect(() => {
